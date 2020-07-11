@@ -1,12 +1,8 @@
 package com.swat018.demospringdl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+public interface BookService {
 
-@Service
-public class BookService {
+    void rent(Book book);
 
-    @Autowired
-    BookRepository bookRepository;
-
+    void returnBook(Book book);
 }
