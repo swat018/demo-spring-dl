@@ -17,12 +17,11 @@ public class BookServiceProxy implements BookService {
 //        System.out.println("rent: Hibernate");
         System.out.println("aaaaa");
         bookService.rent(book);
-
+        System.out.println("bbbbb");
     }
 
     @Override
     public void returnBook(Book book) {
-        System.out.println("aaaaa");
         bookService.rent(book);
     }
 }
