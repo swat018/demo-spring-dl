@@ -1,20 +1,24 @@
 package com.swat018.demospringdl;
 
-import org.h2.util.json.JSONValidationTargetWithoutUniqueKeys;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.implementation.InvocationHandlerAdapter;
+import net.bytebuddy.matcher.ElementMatcher;
 import org.junit.Test;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+
+import static net.bytebuddy.matcher.ElementMatchers.named;
 
 
 public class BookServiceTest {
 
 //    BookService bookService = new BookServiceProxy(new DefalutBookService());
+/*
     BookService bookService = (BookService)Proxy.newProxyInstance(BookService.class.getClassLoader(), new Class[]{BookService.class},
         new InvocationHandler() {
-            BookService bookService = new DefalutBookService();
+            BookService bookService = new BookService();
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 if (method.getName().equals("rent")) {
@@ -26,15 +30,48 @@ public class BookServiceTest {
 
                 return method.invoke(bookService, args);
             }
-        })
-;
+        });
+*/
     @Test
-    public void dl() {
+    public void dl() throws Exception {
 /*        Assert.assertNotNull(bookService);
         Assert.assertNotNull(bookService.bookRepository);*/
+        // CGlib
+/*
+        MethodInterceptor handler = new MethodInterceptor() {
+            BookService bookService = new BookService();
+            @Override
+            public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+                if(method.getName().equals("rent")) {
+                    System.out.println("aaaaa");
+                    Object invoke = method.invoke(bookService, args);
+                    System.out.println("bbbbb");
+                    return invoke;
+                }
+                return method.invoke(bookService, args);
+            }
+        };
+        BookService bookService = (BookService) Enhancer.create(BookService.class, handler);
+*/
+        //ByteBuddy
+        Class<? extends BookService> proxyClass = new ByteBuddy().subclass(BookService.class)
+                .method(named("rent")).intercept(InvocationHandlerAdapter.of(new InvocationHandler() {
+                    BookService bookService = new BookService();
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        System.out.println("aaaaa");
+                        Object invoke = method.invoke(bookService, args);
+                        System.out.println("bbbbb");
+                        return invoke;
+                    }
+                }))
+                .make().load(BookService.class.getClassLoader()).getLoaded();
+        BookService bookService = proxyClass.getConstructor(null).newInstance();
+
         Book book = new Book();
         book.setTitle("spring");
         bookService.rent(book);
         bookService.returnBook(book);
     }
+
 }
