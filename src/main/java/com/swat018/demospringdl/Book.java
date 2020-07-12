@@ -1,10 +1,16 @@
 package com.swat018.demospringdl;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
+@Getter @Setter
 public class Book {
 
     @Id @GeneratedValue
