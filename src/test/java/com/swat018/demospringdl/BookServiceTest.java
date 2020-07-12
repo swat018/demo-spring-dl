@@ -10,6 +10,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class BookServiceTest {
@@ -54,7 +57,7 @@ public class BookServiceTest {
         BookService bookService = (BookService) Enhancer.create(BookService.class, handler);
 */
         //ByteBuddy
-        Class<? extends BookService> proxyClass = new ByteBuddy().subclass(BookService.class)
+ /*       Class<? extends BookService> proxyClass = new ByteBuddy().subclass(BookService.class)
                 .method(named("rent")).intercept(InvocationHandlerAdapter.of(new InvocationHandler() {
                     BookService bookService = new BookService();
                     @Override
@@ -67,11 +70,19 @@ public class BookServiceTest {
                 }))
                 .make().load(BookService.class.getClassLoader()).getLoaded();
         BookService bookService = proxyClass.getConstructor(null).newInstance();
+*/
+        BookRepository bookRepositoryMock = mock(BookRepository.class);
+        Book hibernateBook = new Book();
+        hibernateBook.setTitle("Hibernate");
+        when(bookRepositoryMock.save(any())).thenReturn(hibernateBook);
+
+        BookService bookService = new BookService(bookRepositoryMock);
 
         Book book = new Book();
         book.setTitle("spring");
         bookService.rent(book);
         bookService.returnBook(book);
     }
+
 
 }
